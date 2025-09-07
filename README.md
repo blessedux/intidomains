@@ -2,7 +2,7 @@
 
 > Premium .cl domain registration made simple. Built for developers, freelancers, and small businesses.
 
-## 🎯 Vision
+## Vision
 
 Inti Domains revolutionizes the .cl domain registration experience by solving the core UX problems that plague NIC.CL:
 
@@ -22,7 +22,7 @@ Inti Domains revolutionizes the .cl domain registration experience by solving th
 - ✅ **Simplified DNS management** - User-friendly interface for all skill levels
 - ✅ **Spanish-first experience** - Built specifically for Chilean users
 
-## 🚀 MVP Features
+## MVP Features
 
 ### Phase 1: Core Search & Registration
 
@@ -60,7 +60,7 @@ Inti Domains revolutionizes the .cl domain registration experience by solving th
 - [ ] **Auto-renewal management** - never lose your domains
 - [ ] **API access** - for developers and resellers
 
-## 🎨 User Flow
+## User Flow
 
 ### 1. Search Experience
 
@@ -128,7 +128,7 @@ After successful domain registration, users can immediately deploy a website:
 - **User Satisfaction**: 4.5+ star rating
 - **Technical Performance**: <2s page load times
 
-## 🚀 Getting Started
+## Getting Started
 
 ```bash
 # Install dependencies
@@ -148,7 +148,7 @@ npm run build
 - **Fast loading** on all devices
 - **Accessible** design following WCAG guidelines
 
-## 🌟 Key Differentiators
+## Key Differentiators
 
 1. **Modern UX** - Beautiful, intuitive interface
 2. **Payment Flexibility** - Both traditional and crypto payments
@@ -156,38 +156,6 @@ npm run build
 4. **Spanish-First** - Built specifically for Chilean market
 5. **Developer-Friendly** - Clean APIs and documentation
 
-## 📈 Roadmap
-
-### Q1 2024
-
-- [x] Core search and registration flow
-- [x] Payment integration (Stripe + Crypto)
-- [x] Domain suggestions engine
-- [ ] Vercel deployment integration
-- [ ] Website template library
-
-### Q2 2024
-
-- [ ] One-click deployment pipeline
-- [ ] DNS auto-configuration
-- [ ] Email hosting setup
-- [ ] SSL certificate management
-- [ ] Mobile app (React Native)
-
-### Q3 2024
-
-- [ ] Domain marketplace
-- [ ] Advanced analytics
-- [ ] API for developers
-
-## 🤝 Contributing
-
-We're building this for the Chilean developer community. Contributions welcome!
-
-## 📄 License
-
-MIT License - see LICENSE file for details
-
 ---
 
-**Built by [Blessed UX](https://x.com/blessed_ux)** - Creating beautiful, functional experiences for the Chilean market.
+**Built by [Blessed UX](https://x.com/blessed_ux)** - Creating beautiful, functional experiences for the Chilean market 🌶️.

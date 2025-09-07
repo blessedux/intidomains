@@ -11,6 +11,7 @@ import { DNSZone } from "@/components/dns-zone"
 import { LogIn } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Prism from "@/components/ui/prism"
+import Sphere from "@/components/ui/sphere"
 
 export default function HomePage() {
   const [isSearching, setIsSearching] = useState(false)
@@ -236,19 +237,40 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-black relative overflow-hidden">
       <div className="absolute inset-0 bg-black">
-        <Prism 
-          height={showPayment ? 4.0 : 3.5}
-          baseWidth={showPayment ? 4.0 : 5.5}
-          animationType="rotate"
-          glow={showPayment ? 1.5 : 1.2}
-          noise={0.3}
-          transparent={true}
-          scale={showPayment ? 3.0 : 2.5}
-          timeScale={isSearching ? 0.6 : 0.2}
-          hueShift={0.2}
-          colorFrequency={1.2}
-          bloom={showPayment ? 1.3 : 1.1}
-        />
+        {/* Prism - visible everywhere except payment pages */}
+        <div className={`absolute inset-0 transition-opacity duration-1000 ${showPayment || showCryptoPayment ? 'opacity-0' : 'opacity-100'}`}>
+          <Prism 
+            height={3.5}
+            baseWidth={5.5}
+            animationType="rotate"
+            glow={1.2}
+            noise={0.3}
+            transparent={true}
+            scale={2.5}
+            timeScale={isSearching ? 0.6 : 0.2}
+            hueShift={0.2}
+            colorFrequency={1.2}
+            bloom={1.1}
+          />
+        </div>
+        
+        {/* Sphere - visible only on payment pages */}
+        <div className={`absolute inset-0 transition-opacity duration-1000 ${showPayment || showCryptoPayment ? 'opacity-100' : 'opacity-0'}`}>
+          <Sphere 
+            height={3.5}
+            baseWidth={5.5}
+            animationType="rotate"
+            glow={1.5}
+            noise={0.3}
+            transparent={true}
+            scale={3.0}
+            timeScale={isSearching ? 0.6 : 0.2}
+            hueShift={0.2}
+            colorFrequency={1.2}
+            bloom={1.3}
+            offset={{ x: 0, y: 0 }}
+          />
+        </div>
       </div>
 
       {/* Login Button - Only show when not logged in and not in login/dashboard/dns */}
