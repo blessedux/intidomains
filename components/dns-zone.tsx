@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowLeft, Globe, Users, Plus, Trash2, ExternalLink, Rocket } from "lucide-react"
+import { ArrowLeft, Globe, Users, Plus, Trash2, ExternalLink, Rocket, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -22,6 +22,14 @@ interface DNSZoneProps {
 export function DNSZone({ domain, onBack }: DNSZoneProps) {
   const [newDeveloperEmail, setNewDeveloperEmail] = useState("")
   const [developers, setDevelopers] = useState(domain.developers)
+  const [newEmailAddress, setNewEmailAddress] = useState("")
+  const [emailAddresses, setEmailAddresses] = useState([
+    { id: '1', address: 'admin', fullEmail: `admin@${domain.name}`, status: 'active' },
+    { id: '2', address: 'info', fullEmail: `info@${domain.name}`, status: 'active' },
+    { id: '3', address: 'support', fullEmail: `support@${domain.name}`, status: 'active' }
+  ])
+  const [editingEmail, setEditingEmail] = useState<string | null>(null)
+  const [editingDeveloper, setEditingDeveloper] = useState<string | null>(null)
   const [dnsRecords, setDnsRecords] = useState([
     { id: '1', type: 'A', name: '@', value: '76.76.19.19', ttl: 3600 },
     { id: '2', type: 'CNAME', name: 'www', value: domain.name, ttl: 3600 },
@@ -43,8 +51,8 @@ export function DNSZone({ domain, onBack }: DNSZoneProps) {
   }
 
   const handleDeployToVercel = () => {
-    // TODO: Implement Vercel deployment
-    alert(`Desplegando ${domain.name} a Vercel...`)
+    // Redirect to Vercel in a new tab
+    window.open('https://vercel.com', '_blank')
   }
 
   const handleAddDnsRecord = () => {
@@ -71,6 +79,37 @@ export function DNSZone({ domain, onBack }: DNSZoneProps) {
   const handleCheckPropagation = () => {
     // TODO: Implement DNS propagation check
     alert(`Verificando propagación DNS para ${domain.name}...`)
+  }
+
+  const handleAddEmailAddress = () => {
+    if (newEmailAddress.trim()) {
+      const newEmail = {
+        id: Date.now().toString(),
+        address: newEmailAddress.trim(),
+        fullEmail: `${newEmailAddress.trim()}@${domain.name}`,
+        status: 'active' as const
+      }
+      setEmailAddresses([...emailAddresses, newEmail])
+      setNewEmailAddress("")
+    }
+  }
+
+  const handleDeleteEmailAddress = (id: string) => {
+    setEmailAddresses(emailAddresses.filter(email => email.id !== id))
+  }
+
+  const handleEditEmailAddress = (id: string, newAddress: string) => {
+    setEmailAddresses(emailAddresses.map(email => 
+      email.id === id 
+        ? { ...email, address: newAddress, fullEmail: `${newAddress}@${domain.name}` }
+        : email
+    ))
+    setEditingEmail(null)
+  }
+
+  const handleEditDeveloper = (oldEmail: string, newEmail: string) => {
+    setDevelopers(developers.map(dev => dev === oldEmail ? newEmail : dev))
+    setEditingDeveloper(null)
   }
 
   return (
@@ -276,22 +315,134 @@ export function DNSZone({ domain, onBack }: DNSZoneProps) {
                   <p className="text-white/70 text-sm">No hay desarrolladores agregados</p>
                 ) : (
                   developers.map((email, index) => (
-                    <div key={index} className="flex items-center justify-between bg-white/5 rounded-lg p-3">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                        <span className="text-white text-sm">{email}</span>
+                    <div key={index} className="bg-white/5 rounded-lg p-3">
+                      <div className="flex items-center justify-between min-w-0">
+                        <div className="flex items-center space-x-2 min-w-0 flex-1">
+                          <div className="w-2 h-2 bg-green-400 rounded-full flex-shrink-0"></div>
+                          {editingDeveloper === email ? (
+                            <div className="flex items-center space-x-2 min-w-0 flex-1">
+                              <Input
+                                defaultValue={email}
+                                className="flex-1 bg-white/10 border-white/20 text-white text-sm h-6"
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    handleEditDeveloper(email, e.currentTarget.value)
+                                  } else if (e.key === 'Escape') {
+                                    setEditingDeveloper(null)
+                                  }
+                                }}
+                                autoFocus
+                              />
+                              <Button
+                                onClick={() => handleEditDeveloper(email, (document.querySelector(`input[defaultValue="${email}"]`) as HTMLInputElement)?.value || email)}
+                                size="sm"
+                                className="bg-green-600 hover:bg-green-700 text-white h-6 px-2"
+                              >
+                                <span className="text-xs">Save</span>
+                              </Button>
+                            </div>
+                          ) : (
+                            <span 
+                              className="text-white text-sm truncate cursor-pointer hover:text-blue-400 transition-colors"
+                              onClick={() => setEditingDeveloper(email)}
+                              title={email}
+                            >
+                              {email}
+                            </span>
+                          )}
+                        </div>
+                        <Button
+                          onClick={() => handleRemoveDeveloper(email)}
+                          variant="outline"
+                          size="sm"
+                          className="bg-red-500/20 hover:bg-red-500/30 text-red-400 border-red-500/30 flex-shrink-0 ml-2"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
                       </div>
-                      <Button
-                        onClick={() => handleRemoveDeveloper(email)}
-                        variant="outline"
-                        size="sm"
-                        className="bg-red-500/20 hover:bg-red-500/30 text-red-400 border-red-500/30"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
                     </div>
                   ))
                 )}
+              </div>
+
+              {/* Email Addresses */}
+              <div className="pt-4 border-t border-white/10">
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Mail className="w-4 h-4 text-green-400" />
+                    <h4 className="text-white font-medium text-sm">Direcciones de Email</h4>
+                  </div>
+                  
+                  {/* Add Email Address */}
+                  <div className="flex space-x-2">
+                    <Input
+                      placeholder="nombre"
+                      value={newEmailAddress}
+                      onChange={(e) => setNewEmailAddress(e.target.value)}
+                      className="flex-1 bg-white/5 border-white/20 text-white placeholder:text-white/50 text-sm"
+                    />
+                    <Button
+                      onClick={handleAddEmailAddress}
+                      size="sm"
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
+                  </div>
+
+                  {/* Email Addresses List */}
+                  <div className="space-y-2">
+                    {emailAddresses.map((email) => (
+                      <div key={email.id} className="bg-white/5 rounded-lg p-3">
+                        <div className="flex items-center justify-between min-w-0">
+                          <div className="flex items-center space-x-2 min-w-0 flex-1">
+                            <div className="w-2 h-2 bg-green-400 rounded-full flex-shrink-0"></div>
+                            {editingEmail === email.id ? (
+                              <div className="flex items-center space-x-2 min-w-0 flex-1">
+                                <Input
+                                  defaultValue={email.address}
+                                  className="flex-1 bg-white/10 border-white/20 text-white text-sm h-6"
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      handleEditEmailAddress(email.id, e.currentTarget.value)
+                                    } else if (e.key === 'Escape') {
+                                      setEditingEmail(null)
+                                    }
+                                  }}
+                                  autoFocus
+                                />
+                                <span className="text-white/70 text-sm flex-shrink-0">@{domain.name}</span>
+                                <Button
+                                  onClick={() => handleEditEmailAddress(email.id, (document.querySelector(`input[defaultValue="${email.address}"]`) as HTMLInputElement)?.value || email.address)}
+                                  size="sm"
+                                  className="bg-green-600 hover:bg-green-700 text-white h-6 px-2"
+                                >
+                                  <span className="text-xs">Save</span>
+                                </Button>
+                              </div>
+                            ) : (
+                              <span 
+                                className="text-white text-sm truncate cursor-pointer hover:text-blue-400 transition-colors"
+                                onClick={() => setEditingEmail(email.id)}
+                                title={email.fullEmail}
+                              >
+                                {email.fullEmail}
+                              </span>
+                            )}
+                          </div>
+                          <Button
+                            onClick={() => handleDeleteEmailAddress(email.id)}
+                            variant="outline"
+                            size="sm"
+                            className="bg-red-500/20 hover:bg-red-500/30 text-red-400 border-red-500/30 flex-shrink-0 ml-2"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               {/* Quick Actions */}

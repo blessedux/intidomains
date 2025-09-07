@@ -273,6 +273,15 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Logo - Top Left */}
+      <div className="absolute top-4 left-6 z-20">
+        <img 
+          src="/inti_logo.png" 
+          alt="Inti Domains" 
+          className="h-8 w-auto"
+        />
+      </div>
+
       {/* Login Button - Only show when not logged in and not in login/dashboard/dns */}
       {!showLogin && !showDashboard && !showDNSZone && !userEmail && (
         <div className="absolute top-4 right-4 z-20">
@@ -376,12 +385,26 @@ export default function HomePage() {
                   <div className="text-3xl font-bold text-white">
                     ${searchResult.price?.toLocaleString('es-CL')} CLP
                   </div>
-                  <button 
-                    onClick={handleRegisterClick}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors"
-                  >
-                    Registrar Ahora
-                  </button>
+                  <div className="flex items-center space-x-2">
+                    <button 
+                      onClick={handleRegisterClick}
+                      className="flex-1 bg-white hover:bg-gray-100 text-black font-medium py-3 px-6 rounded-lg transition-colors"
+                    >
+                      Registrar Ahora
+                    </button>
+                    <button 
+                      onClick={() => {
+                        // TODO: Implement save to cart functionality
+                        alert(`Dominio ${searchResult.domain} guardado para más tarde`)
+                      }}
+                      className="bg-black hover:bg-gray-800 text-white font-medium py-3 px-3 rounded-lg transition-colors flex items-center justify-center"
+                      title="Guardar para Después"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -422,7 +445,6 @@ export default function HomePage() {
       {/* Footer */}
       <div className="absolute bottom-0 left-0 right-0 z-10 pb-1">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-0.5">Inti Domains</h1>
           <p className="text-sm text-white/70 max-w-2xl mx-auto mb-0.5">
             Registra tu dominio .cl 
           </p>
