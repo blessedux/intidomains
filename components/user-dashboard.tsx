@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Globe, LogOut, ChevronRight, Calendar, Users } from "lucide-react"
+import { Globe, ChevronRight, Calendar, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SearchBar } from "@/components/search-bar"
 
@@ -16,14 +16,13 @@ interface Domain {
 
 interface UserDashboardProps {
   userEmail: string
-  onLogout: () => void
   onDomainClick: (domain: Domain) => void
   onSearch: (domain: string) => void
   isSearching: boolean
   newlyRegisteredDomain?: string
 }
 
-export function UserDashboard({ userEmail, onLogout, onDomainClick, onSearch, isSearching, newlyRegisteredDomain }: UserDashboardProps) {
+export function UserDashboard({ userEmail, onDomainClick, onSearch, isSearching, newlyRegisteredDomain }: UserDashboardProps) {
   // Mock data - in real app this would come from API
   const [domains] = useState<Domain[]>(() => {
     const baseDomains = [
@@ -116,20 +115,9 @@ export function UserDashboard({ userEmail, onLogout, onDomainClick, onSearch, is
       <div className="bg-black/50 backdrop-blur-sm rounded-lg p-6 border border-white/10">
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-white">Mis Dominios</h2>
-              <p className="text-white/70 text-sm">{userEmail}</p>
-            </div>
-            <Button 
-              onClick={onLogout}
-              variant="outline"
-              size="sm"
-              className="bg-white/10 hover:bg-white/20 text-white border-white/20"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Cerrar Sesión
-            </Button>
+          <div>
+            <h2 className="text-xl font-bold text-white">Mis Dominios</h2>
+            <p className="text-white/70 text-sm">{userEmail}</p>
           </div>
 
           {/* Domains List */}

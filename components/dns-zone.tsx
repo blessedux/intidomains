@@ -1,9 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowLeft, Globe, Users, Plus, Trash2, ExternalLink, Rocket, Mail } from "lucide-react"
+import { ArrowLeft, Globe, Users, Plus, Trash2, ExternalLink, Rocket, Mail, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import Sphere from "@/components/ui/sphere"
 
 interface Domain {
   id: string
@@ -30,6 +31,15 @@ export function DNSZone({ domain, onBack }: DNSZoneProps) {
   ])
   const [editingEmail, setEditingEmail] = useState<string | null>(null)
   const [editingDeveloper, setEditingDeveloper] = useState<string | null>(null)
+  const [showDangerZone, setShowDangerZone] = useState(false)
+  const [ownerInfo, setOwnerInfo] = useState({
+    name: "Juan Pérez",
+    business: "Mi Empresa SpA",
+    taxId: "76.123.456-7",
+    address: "Av. Providencia 1234, Santiago, Chile"
+  })
+  const [confirmationText, setConfirmationText] = useState("")
+  const [isDeleting, setIsDeleting] = useState(false)
   const [dnsRecords, setDnsRecords] = useState([
     { id: '1', type: 'A', name: '@', value: '76.76.19.19', ttl: 3600 },
     { id: '2', type: 'CNAME', name: 'www', value: domain.name, ttl: 3600 },
@@ -113,7 +123,58 @@ export function DNSZone({ domain, onBack }: DNSZoneProps) {
   }
 
   return (
-    <div className="w-full max-w-8xl mx-auto">
+    <>
+      {/* Death Preloader */}
+      {isDeleting && (
+        <div className="fixed inset-0 bg-black z-50">
+          {/* Sphere Background */}
+          <div className="absolute inset-0">
+            <Sphere 
+              height={3.5}
+              baseWidth={5.5}
+              animationType="rotate"
+              glow={1.8}
+              noise={0.4}
+              transparent={true}
+              scale={3.2}
+              timeScale={0.8}
+              hueShift={0.1}
+              colorFrequency={1.5}
+              bloom={1.4}
+              offset={{ x: 0, y: 0 }}
+            />
+          </div>
+          
+          {/* Death Content */}
+          <div className="relative z-10 flex flex-col items-center justify-center min-h-screen">
+            <div className="text-center space-y-6">
+              {/* Skull Animation */}
+              <div className="animate-pulse">
+                <div className="text-8xl mb-4 animate-bounce">
+                  💀
+                </div>
+              </div>
+              
+              {/* Death Message */}
+              <div className="space-y-2">
+                <h1 className="text-3xl font-bold text-white animate-pulse">
+                  Eliminando Dominio...
+                </h1>
+                <p className="text-xl text-red-400 font-medium">
+                  Esta acción es irreversible
+                </p>
+                <div className="flex items-center justify-center space-x-2 mt-4">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-ping" style={{animationDelay: '0.2s'}}></div>
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-ping" style={{animationDelay: '0.4s'}}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <div className="w-full max-w-8xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         {/* Main DNS Zone Panel */}
         <div className="lg:col-span-3">
@@ -139,9 +200,10 @@ export function DNSZone({ domain, onBack }: DNSZoneProps) {
                   {domain.status === 'active' ? (
                     <button
                       onClick={() => window.open(`https://${domain.name}`, '_blank')}
-                      className="text-xs font-medium px-2 py-1 rounded bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors cursor-pointer"
+                      className="text-xs font-medium px-2 py-1 rounded bg-green-500/20 text-green-400 hover:bg-green-500/30 transition-colors cursor-pointer flex items-center space-x-1"
                     >
-                      Activo
+                      <Globe className="w-3 h-3" />
+                      <span>Activo</span>
                     </button>
                   ) : (
                     <span className="text-xs font-medium px-2 py-1 rounded bg-red-500/20 text-red-400">
@@ -445,18 +507,145 @@ export function DNSZone({ domain, onBack }: DNSZoneProps) {
                 </div>
               </div>
 
-              {/* Quick Actions */}
+              {/* Danger Zone */}
               <div className="pt-4 border-t border-white/10">
-                <div className="space-y-2">
-                  <p className="text-white/60 text-xs">
-                    Haz clic en "Activo" arriba para visitar el sitio web
-                  </p>
-                </div>
+                <Button
+                  onClick={() => setShowDangerZone(true)}
+                  variant="outline"
+                  size="sm"
+                  className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border-red-500/30"
+                >
+                  <AlertTriangle className="w-4 h-4 mr-2" />
+                  Danger Zone
+                </Button>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Danger Zone Modal */}
+      {showDangerZone && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-black/90 border border-red-500/30 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <AlertTriangle className="w-6 h-6 text-red-400" />
+                  <h2 className="text-xl font-bold text-white">Danger Zone</h2>
+                </div>
+                <button
+                  onClick={() => setShowDangerZone(false)}
+                  className="text-white/70 hover:text-white"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Domain Owner Information */}
+              <div className="space-y-4">
+                <h3 className="text-white font-medium">Información del Propietario</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-white/70 text-sm">Nombre Completo</label>
+                    <Input
+                      value={ownerInfo.name}
+                      onChange={(e) => setOwnerInfo(prev => ({ ...prev, name: e.target.value }))}
+                      className="bg-white/5 border-white/20 text-white mt-1"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white/70 text-sm">Empresa</label>
+                    <Input
+                      value={ownerInfo.business}
+                      onChange={(e) => setOwnerInfo(prev => ({ ...prev, business: e.target.value }))}
+                      className="bg-white/5 border-white/20 text-white mt-1"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white/70 text-sm">RUT/Tax ID</label>
+                    <Input
+                      value={ownerInfo.taxId}
+                      onChange={(e) => setOwnerInfo(prev => ({ ...prev, taxId: e.target.value }))}
+                      className="bg-white/5 border-white/20 text-white mt-1"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-white/70 text-sm">Dirección</label>
+                    <Input
+                      value={ownerInfo.address}
+                      onChange={(e) => setOwnerInfo(prev => ({ ...prev, address: e.target.value }))}
+                      className="bg-white/5 border-white/20 text-white mt-1"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Domain Deletion */}
+              <div className="space-y-4 pt-4 border-t border-red-500/30">
+                <h3 className="text-red-400 font-medium">Eliminar Dominio</h3>
+                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+                  <p className="text-white/70 text-sm mb-4">
+                    Esta acción es irreversible. Al eliminar el dominio, se perderán todos los datos asociados, 
+                    incluyendo configuraciones DNS, emails y subdominios.
+                  </p>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-white/70 text-sm">
+                        Para confirmar, escribe el nombre del dominio: <span className="text-red-400 font-mono">{domain.name}</span>
+                      </label>
+                      <Input
+                        value={confirmationText}
+                        onChange={(e) => setConfirmationText(e.target.value)}
+                        placeholder={`Escribe ${domain.name} para confirmar`}
+                        className="bg-white/5 border-white/20 text-white mt-1"
+                      />
+                    </div>
+                    
+                    <div className="flex space-x-3">
+                      <Button
+                        onClick={() => {
+                          if (confirmationText === domain.name) {
+                            setIsDeleting(true)
+                            setShowDangerZone(false)
+                            setConfirmationText("")
+                            
+                            // Simulate deletion process with death preloader
+                            setTimeout(() => {
+                              setIsDeleting(false)
+                              onBack() // Return to dashboard
+                            }, 3000) // 3 seconds for dramatic effect
+                          }
+                        }}
+                        disabled={confirmationText !== domain.name || isDeleting}
+                        className="bg-red-600 hover:bg-red-700 text-white disabled:bg-red-600/30 disabled:cursor-not-allowed"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        {isDeleting ? "Eliminando..." : "Eliminar Dominio"}
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setShowDangerZone(false)
+                          setConfirmationText("")
+                        }}
+                        variant="outline"
+                        className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+                      >
+                        Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      </div>
+    </>
   )
 }

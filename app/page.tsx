@@ -32,6 +32,24 @@ export default function HomePage() {
   const [userEmail, setUserEmail] = useState("")
   const [paymentYears, setPaymentYears] = useState(1)
   const [newlyRegisteredDomain, setNewlyRegisteredDomain] = useState<string | null>(null)
+  const [savedDomains, setSavedDomains] = useState<Array<{domain: string, price: number, savedAt: string}>>([])
+  const [showSavedModal, setShowSavedModal] = useState(false)
+  const [bookmarkAnimation, setBookmarkAnimation] = useState(false)
+
+  // Close modal when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showSavedModal) {
+        const target = event.target as Element
+        if (!target.closest('.saved-modal-container')) {
+          setShowSavedModal(false)
+        }
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showSavedModal])
   const [domainSuggestions, setDomainSuggestions] = useState<Array<{
     domain: string
     available: boolean
@@ -282,9 +300,107 @@ export default function HomePage() {
         />
       </div>
 
-      {/* Login Button - Only show when not logged in and not in login/dashboard/dns */}
-      {!showLogin && !showDashboard && !showDNSZone && !userEmail && (
-        <div className="absolute top-4 right-4 z-20">
+      {/* Header Buttons - Right Side */}
+      <div className="absolute top-4 right-4 z-20 flex items-center space-x-2">
+        {/* Bookmark Button - Always visible */}
+        <div className="relative saved-modal-container">
+          <Button
+            onClick={() => setShowSavedModal(!showSavedModal)}
+            variant="outline"
+            size="sm"
+            className={`bg-white/10 hover:bg-white/20 text-white border-white/20 transition-transform duration-300 ${
+              bookmarkAnimation ? 'scale-110' : 'scale-100'
+            }`}
+          >
+            <svg className="w-4 h-4" fill={showSavedModal ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            </svg>
+            {savedDomains.length > 0 && (
+              <span className={`absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center transition-all duration-300 ${
+                bookmarkAnimation ? 'scale-125 bg-green-500' : 'scale-100'
+              }`}>
+                {savedDomains.length}
+              </span>
+            )}
+          </Button>
+          
+          {/* Saved Domains Modal */}
+          {showSavedModal && (
+            <div className="absolute top-12 right-0 bg-black/90 backdrop-blur-sm border border-white/20 rounded-lg p-4 w-80 max-h-96 overflow-y-auto">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-white font-medium text-sm">Dominios Guardados</h3>
+                  <button
+                    onClick={() => setShowSavedModal(false)}
+                    className="text-white/70 hover:text-white"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                
+                {savedDomains.length === 0 ? (
+                  <p className="text-white/70 text-sm">No hay dominios guardados</p>
+                ) : (
+                  <div className="space-y-2">
+                    {savedDomains.map((saved, index) => (
+                      <div key={index} className="bg-white/5 rounded-lg p-3">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white font-medium text-sm">{saved.domain}</p>
+                            <p className="text-white/70 text-xs">${saved.price.toLocaleString('es-CL')} CLP</p>
+                            <p className="text-white/50 text-xs">
+                              Guardado: {new Date(saved.savedAt).toLocaleDateString('es-CL')}
+                            </p>
+                          </div>
+                          <div className="flex space-x-1">
+                            <button
+                              onClick={() => {
+                                // TODO: Implement register from saved
+                                alert(`Registrando ${saved.domain}...`)
+                              }}
+                              className="bg-green-600 hover:bg-green-700 text-white text-xs px-2 py-1 rounded"
+                            >
+                              Registrar
+                            </button>
+                            <button
+                              onClick={() => {
+                                setSavedDomains(prev => prev.filter((_, i) => i !== index))
+                              }}
+                              className="bg-red-600 hover:bg-red-700 text-white text-xs px-2 py-1 rounded"
+                            >
+                              Eliminar
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Disclaimer */}
+                <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-3 mt-3">
+                  <div className="flex items-start space-x-2">
+                    <svg className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                    <div>
+                      <p className="text-yellow-400 font-medium text-xs">Importante</p>
+                      <p className="text-yellow-300 text-xs">
+                        Guardar un dominio no garantiza su disponibilidad. Es un proceso de primero en llegar, primero en ser servido. ¡Compra rápido antes de que alguien más lo haga!
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+
+        {/* Login Button - Only show when not logged in and not in login/dashboard/dns */}
+        {!showLogin && !showDashboard && !showDNSZone && !userEmail && (
           <Button
             onClick={handleLoginClick}
             variant="outline"
@@ -294,12 +410,10 @@ export default function HomePage() {
             <LogIn className="w-4 h-4 mr-2" />
             Iniciar Sesión
           </Button>
-        </div>
-      )}
+        )}
 
-      {/* User Name with Logout - Show when logged in and in payment/crypto/dns */}
-      {userEmail && (showPayment || showCryptoPayment || showDNSZone) && (
-        <div className="absolute top-4 right-4 z-20">
+        {/* User Name with Logout - Show when logged in */}
+        {userEmail && (
           <Button
             onClick={handleLogout}
             variant="outline"
@@ -309,8 +423,8 @@ export default function HomePage() {
             {formatUserName(userEmail)}
             <LogIn className="w-4 h-4 ml-2" />
           </Button>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
         <div className="w-full max-w-2xl space-y-6">
@@ -326,7 +440,6 @@ export default function HomePage() {
           {showDashboard && (
             <UserDashboard
               userEmail={userEmail}
-              onLogout={handleLogout}
               onDomainClick={handleDomainClick}
               onSearch={handleSearch}
               isSearching={isSearching}
@@ -384,7 +497,7 @@ export default function HomePage() {
                   </div>
                   <div className="text-3xl font-bold text-white">
                     ${searchResult.price?.toLocaleString('es-CL')} CLP
-                  </div>
+        </div>
                   <div className="flex items-center space-x-2">
                     <button 
                       onClick={handleRegisterClick}
@@ -394,8 +507,23 @@ export default function HomePage() {
                     </button>
                     <button 
                       onClick={() => {
-                        // TODO: Implement save to cart functionality
-                        alert(`Dominio ${searchResult.domain} guardado para más tarde`)
+                        if (searchResult?.domain && searchResult?.price) {
+                          // Check if domain is already saved
+                          const isAlreadySaved = savedDomains.some(saved => saved.domain === searchResult.domain)
+                          
+                          if (!isAlreadySaved) {
+                            const newSavedDomain = {
+                              domain: searchResult.domain,
+                              price: searchResult.price,
+                              savedAt: new Date().toISOString()
+                            }
+                            setSavedDomains(prev => [...prev, newSavedDomain])
+                            
+                            // Trigger animation
+                            setBookmarkAnimation(true)
+                            setTimeout(() => setBookmarkAnimation(false), 600)
+                          }
+                        }
                       }}
                       className="bg-black hover:bg-gray-800 text-white font-medium py-3 px-3 rounded-lg transition-colors flex items-center justify-center"
                       title="Guardar para Después"
@@ -440,7 +568,7 @@ export default function HomePage() {
             />
           )}
         </div>
-      </div>
+        </div>
 
       {/* Footer */}
       <div className="absolute bottom-0 left-0 right-0 z-10 pb-1">
